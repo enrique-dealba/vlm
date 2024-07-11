@@ -1,43 +1,42 @@
-# Use official Python image
-FROM python:3.9-slim-buster
+# Use NVIDIA CUDA base image
+FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHON_VERSION=3.9
+ENV VLLM_VERSION=0.5.1
+ENV CUDA_VERSION=118
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-dev \
+    python3-pip \
+    git \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for llama-cpp-python
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    && rm -rf /var/lib/apt/lists/*
+# Upgrade pip and install build tools
+RUN python${PYTHON_VERSION} -m pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA 11.8
+RUN python${PYTHON_VERSION} -m pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+
+# Install xFormers
+RUN python${PYTHON_VERSION} -m pip install xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/cu118
+
+# Clone vLLM repository and install from source
+RUN git clone https://github.com/vllm-project/vllm.git \
+    && cd vllm \
+    && git checkout v${VLLM_VERSION} \
+    && python${PYTHON_VERSION} -m pip install -e .
 
 # Copy requirements file and install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set environment variables for vLLM version and Python version
-# Prev: ENV VLLM_VERSION=0.2.4
-ENV VLLM_VERSION=0.5.1
-ENV PYTHON_VERSION=39
-
-# Install vLLM with CUDA 11.8
-RUN pip install --force-reinstall https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cu118-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux1_x86_64.whl
-
-# Re-install PyTorch with CUDA 11.8
-RUN pip uninstall torch -y && \
-    pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
-    # pip install torch --upgrade --index-url https://download.pytorch.org/whl/cu118
-
-# Re-install xFormers with CUDA 11.8
-RUN pip uninstall xformers -y && \
-    pip install xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/cu118
-    # pip install --upgrade xformers --index-url https://download.pytorch.org/whl/cu118
-
-# TODO: Delete this later
-RUN pip install pydantic==2.7.1 pydantic-core==2.18.2
-
-# Clean existing vllm build and installed files
-RUN rm -rf /usr/local/lib/python3.9/site-packages/vllm/*cpython*.so \
-    && rm -rf /usr/local/lib/python3.9/site-packages/vllm/build
+RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
 
 # Copy .env file and other files
 COPY .env .env
