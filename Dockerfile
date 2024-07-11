@@ -1,5 +1,5 @@
 # Use NVIDIA CUDA base image
-FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -23,7 +23,7 @@ WORKDIR /app
 RUN python${PYTHON_VERSION} -m pip install --upgrade pip setuptools wheel
 
 # Install PyTorch with CUDA 11.8
-RUN python${PYTHON_VERSION} -m pip install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+RUN python${PYTHON_VERSION} -m pip install torch==2.1.2 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Install xFormers
 RUN python${PYTHON_VERSION} -m pip install xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/cu118
