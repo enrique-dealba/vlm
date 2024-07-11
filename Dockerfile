@@ -20,7 +20,7 @@ ENV VLLM_VERSION=0.5.1
 ENV PYTHON_VERSION=39
 
 # Install vLLM with CUDA 11.8
-RUN pip install https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cu118-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux1_x86_64.whl
+RUN pip install --force-reinstall https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cu118-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux1_x86_64.whl
 
 # Re-install PyTorch with CUDA 11.8
 RUN pip uninstall torch -y && \
@@ -34,6 +34,10 @@ RUN pip uninstall xformers -y && \
 
 # TODO: Delete this later
 RUN pip install pydantic==2.7.1 pydantic-core==2.18.2
+
+# Clean existing vllm build and installed files
+RUN rm -rf /usr/local/lib/python3.9/site-packages/vllm/*cpython*.so \
+    && rm -rf /usr/local/lib/python3.9/site-packages/vllm/build
 
 # Copy .env file and other files
 COPY .env .env
