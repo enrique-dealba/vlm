@@ -1,4 +1,4 @@
-"""FastAPI server for handling Large Language Model (LLM) requests."""
+"""FastAPI server for handling Vision Language Model (VLM) requests."""
 
 import logging
 import os

@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 import requests
 

@@ -39,9 +39,6 @@ class TextProcessing:
     @staticmethod
     def clean_mistral(input_text: str) -> str:
         """Cleans input text by removing prefixes and unwanted characters."""
-        if not isinstance(input_text, str):
-            raise ValueError("Input must be a string")
-
         # Regex patterns to target only the beginning of the text
         regex_patterns = [
             r"^\s+",  # Leading whitespace pattern
