@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Load configurations from .env file
-export $(grep -v '^#' .env | xargs)
+set -a
+source .env
+set +a
 
 # Check for GPU availability
 if ! command -v nvidia-smi &> /dev/null; then
