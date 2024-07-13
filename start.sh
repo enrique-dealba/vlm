@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Activate the virtual environment
+source /opt/venv/bin/activate
+
 # Load configurations from .env file
 set -a
 source .env
@@ -26,4 +29,4 @@ fi
 echo "CUDA Version: $CUDA_VERSION"
 
 # Run FastAPI server for llm_server
-python3.10 -m uvicorn vlm_server:app --host 0.0.0.0 --port 8888
+python -m uvicorn vlm_server:app --host 0.0.0.0 --port 8888
