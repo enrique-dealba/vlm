@@ -1,14 +1,17 @@
-# Use NVIDIA CUDA base image
-FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
+# Use NVIDIA CUDA 11.8 base image
+FROM nvidia/cuda:11.8.0-devel-ubuntu20.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHON_VERSION=3.9
+ENV PYTHON_VERSION=3.10
 ENV VLLM_VERSION=0.5.1
 ENV CUDA_VERSION=118
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-dev \
     python3-pip \
@@ -25,14 +28,8 @@ RUN python${PYTHON_VERSION} -m pip install --upgrade pip setuptools wheel
 # Install PyTorch with CUDA 11.8
 RUN python${PYTHON_VERSION} -m pip install torch==2.1.2 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Install xFormers
-RUN python${PYTHON_VERSION} -m pip install xformers==0.0.23.post1 --index-url https://download.pytorch.org/whl/cu118
-
-# Clone vLLM repository and install from source
-RUN git clone https://github.com/vllm-project/vllm.git \
-    && cd vllm \
-    && git checkout v${VLLM_VERSION} \
-    && python${PYTHON_VERSION} -m pip install -e .
+# Install vLLM with CUDA 11.8
+RUN python${PYTHON_VERSION} -m pip install https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}+cu${CUDA_VERSION}-cp${PYTHON_VERSION/./}-cp${PYTHON_VERSION/./}-manylinux1_x86_64.whl
 
 # Copy requirements file and install dependencies
 COPY requirements.txt .
