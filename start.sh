@@ -1,16 +1,23 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # Activate the virtual environment
-source /opt/venv/bin/activate
+. /opt/venv/bin/activate
 
 # Load configurations from .env file
-set -a
-source .env
-set +a
+if [ -f .env ]; then
+    set -a
+    . .env
+    set +a
+else
+    echo "Warning: .env file not found"
+fi
 
 # Check for GPU availability
 if ! command -v nvidia-smi &> /dev/null; then
-    echo "Error: nvidia-smi not found. Ensure NVIDIA drivers are installed."
+    echo "Error: nvidia-smi not found. Ensure NVIDIA drivers are installed and accessible within the container."
     exit 1
 fi
 
@@ -29,4 +36,4 @@ fi
 echo "CUDA Version: $CUDA_VERSION"
 
 # Run FastAPI server for llm_server
-python -m uvicorn vlm_server:app --host 0.0.0.0 --port 8888
+exec python -m uvicorn vlm_server:app --host 0.0.0.0 --port 8888

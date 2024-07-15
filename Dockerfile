@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     git \
     wget \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -53,4 +54,4 @@ RUN chmod +x start.sh
 EXPOSE 8888
 
 # Set start-up script as the entry point
-ENTRYPOINT ["sh", "./start.sh"]
+ENTRYPOINT ["bash", "./start.sh"]
